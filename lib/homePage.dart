@@ -10,6 +10,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   int _currentIndex = 0;
+  int selectedIndex = -1;
 
   // Dynamic Categories List
   List<Map<String, dynamic>> categories = [
@@ -67,7 +68,7 @@ class _HomepageState extends State<Homepage> {
             child: BottomNavigationBar(
               currentIndex: _currentIndex,
               iconSize: 30,
-              selectedItemColor: Color.fromARGB(255, 210, 162, 16),
+              selectedItemColor: Color(0xFFFFC727),
               onTap: (index) {
                 setState(() {
                   _currentIndex = index;
@@ -112,7 +113,8 @@ class _HomepageState extends State<Homepage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 10),
-                          child: Icon(Icons.menu, size: 40),
+                          child: Icon(Icons.menu, size: 40 , color: Color((0xFFFFC727)),
+                        )
                         )
                       ],
                     ),
@@ -133,16 +135,26 @@ class _HomepageState extends State<Homepage> {
                       height: 100,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: categories.length,
+                        itemCount: categories.length,                        
                         itemBuilder: (context, index) {
-                          return Padding(
+                            bool isSelected = selectedIndex == index;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedIndex = index;
+                              });
+                            },
+                          
+                          child: Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: Column(
                               children: [
                                 Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(100),
-                                    color: Colors.grey[200],
+                                      color: isSelected
+                                          ? const Color(0xFFFFC727)
+                                          : Colors.grey[200],
                                   ),
                                   height: 80,
                                   width: 80,
@@ -150,6 +162,7 @@ class _HomepageState extends State<Homepage> {
                                   child: Icon(
                                     categories[index]["icon"],
                                     size: 45,
+                                    color: isSelected ? Colors.white : Colors.black,
                                   ),
                                 ),
                                 Text(
@@ -161,6 +174,7 @@ class _HomepageState extends State<Homepage> {
                                 )
                               ],
                             ),
+                          )
                           );
                         },
                       ),
@@ -223,7 +237,7 @@ class _HomepageState extends State<Homepage> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
-                                    color: Color.fromARGB(255, 210, 162, 16),
+                                    color: Color(0xFFFFC727),
                                   ),
                                 ),
                                 SizedBox(height: 8),
