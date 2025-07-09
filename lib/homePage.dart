@@ -1,5 +1,7 @@
 import 'package:ecommerce_app/details.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -12,7 +14,6 @@ class _HomepageState extends State<Homepage> {
   int _currentIndex = 0;
   int selectedIndex = -1;
 
-  // Dynamic Categories List
   List<Map<String, dynamic>> categories = [
     {"icon": Icons.laptop, "label": "Laptop"},
     {"icon": Icons.watch, "label": "Watch"},
@@ -21,37 +22,40 @@ class _HomepageState extends State<Homepage> {
     {"icon": Icons.watch, "label": "Watch"},
   ];
 
-  List items = [
-    {
-      "image": "images/headphones.png",
-      "name": "Headphones",
-      "description": "Easy to use 3-10 hours",
-      "price": "\$80.99"
-    },
-    {
-      "image": "images/watch.png",
-      "name": "Watch",
-      "description": "Easy to use 3-10 hours",
-      "price": "\$300.00"
-    },
-    {
-      "image": "images/watch.png",
-      "name": "Watch",
-      "description": "Easy to use 3-10 hours",
-      "price": "\$300.00"
-    },
-    {
-      "image": "images/watch.png",
-      "name": "Watch",
-      "description": "Easy to use 3-10 hours",
-      "price": "\$300.00"
-    },
-  ];
+  List items = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchItems();
+  }
+
+  void fetchItems() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.62.181:5000/api/items/items'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          items = jsonDecode(response.body);
+          isLoading = false;
+        });
+      } else {
+        print('Failed to load items');
+        setState(() => isLoading = false);
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // BottomNavigationBar with rounded corners and no splash effect
       bottomNavigationBar: ClipRRect(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25),
@@ -86,8 +90,6 @@ class _HomepageState extends State<Homepage> {
           ),
         ),
       ),
-
-      // Page body
       body: SafeArea(
         child: _currentIndex == 0
             ? Container(
@@ -113,140 +115,142 @@ class _HomepageState extends State<Homepage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 10),
-                          child: Icon(Icons.menu, size: 40 , color: Color((0xFFFFC727)),
-                        )
+                          child: Icon(
+                            Icons.menu,
+                            size: 40,
+                            color: Color(0xFFFFC727),
+                          ),
                         )
                       ],
                     ),
                     SizedBox(height: 30),
 
-                    // Categories Title
-                    Text(
-                      "Categories",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    // Categories
+                    Text("Categories",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
                     SizedBox(height: 20),
-
-                    // Categories List
                     Container(
                       height: 100,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: categories.length,                        
+                        itemCount: categories.length,
                         itemBuilder: (context, index) {
-                            bool isSelected = selectedIndex == index;
+                          bool isSelected = selectedIndex == index;
                           return GestureDetector(
                             onTap: () {
                               setState(() {
                                 selectedIndex = index;
                               });
                             },
-                          
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
                                       color: isSelected
                                           ? const Color(0xFFFFC727)
                                           : Colors.grey[200],
+                                    ),
+                                    height: 80,
+                                    width: 80,
+                                    padding: EdgeInsets.all(10),
+                                    child: Icon(
+                                      categories[index]["icon"],
+                                      size: 45,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
                                   ),
-                                  height: 80,
-                                  width: 80,
-                                  padding: EdgeInsets.all(10),
-                                  child: Icon(
-                                    categories[index]["icon"],
-                                    size: 45,
-                                    color: isSelected ? Colors.white : Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  categories[index]["label"],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[400],
-                                  ),
-                                )
-                              ],
+                                  Text(
+                                    categories[index]["label"],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[400],
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
-                          )
                           );
                         },
                       ),
                     ),
 
                     SizedBox(height: 30),
-
-                    // Best Selling Title
-                    Text(
-                      "Best Selling",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text("Best Selling",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
                     SizedBox(height: 20),
 
-                    // Products Grid
-                    GridView.builder(
-                      itemCount: items.length,
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.8,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        mainAxisExtent: 250,
-                      ),
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: (){
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ItemsDetails(data: items[index])));
-                          },
-                          child: Card(
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    padding: EdgeInsets.all(10),
-                                    color: Colors.grey[200],
-                                    width: double.infinity,
-                                    child: Image.asset(
-                                      items[index]["image"],
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  items[index]["name"],
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  items[index]["description"],
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                                Text(
-                                  items[index]["price"],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    color: Color(0xFFFFC727),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                              ],
+                    isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : GridView.builder(
+                            itemCount: items.length,
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.8,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 10,
+                              mainAxisExtent: 250,
                             ),
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) =>
+                                          ItemsDetails(data: item)));
+                                },
+                                child: Card(
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          padding: EdgeInsets.all(10),
+                                          color: Colors.grey[200],
+                                          width: double.infinity,
+                                          child: Image.network(
+                                            item["image"] ?? '',
+                                            fit: BoxFit.contain,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Icon(Icons.broken_image),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        item["name"] ?? "No name",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        item["description"] ??
+                                            "No description",
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                      Text(
+                                        "\$${item["price"].toString()}",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: Color(0xFFFFC727),
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
                   ],
                 ),
               )
