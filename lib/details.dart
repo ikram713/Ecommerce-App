@@ -58,10 +58,13 @@ class _ItemsDetailsState extends State<ItemsDetails> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                widget.data['image'],
-                fit: BoxFit.cover,
-              ),
+              child:Image.network(
+                widget.data['image'],  // full URL from backend
+                  fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.broken_image, size: 100);
+                  },
+                )
             ),
           ),
 
@@ -94,7 +97,7 @@ class _ItemsDetailsState extends State<ItemsDetails> {
 
           // Product Price
           Text(
-            widget.data['price'],
+            '${widget.data['price']}',
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
