@@ -2,6 +2,7 @@ import 'package:ecommerce_app/details.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'item_search_delegate.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -19,7 +20,7 @@ class _HomepageState extends State<Homepage> {
     {"icon": Icons.watch, "label": "Watch"},
     {"icon": Icons.electric_bike_outlined, "label": "Bike"},
     {"icon": Icons.headphones, "label": "Headphones"},
-    {"icon": Icons.watch, "label": "Watch"},
+    {"icon": Icons.phone_android, "label": "Phone"},
   ];
 
   List items = [];
@@ -34,7 +35,7 @@ class _HomepageState extends State<Homepage> {
   void fetchItems() async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.62.181:5000/api/items/items'),
+        Uri.parse('http://10.44.197.181:5000/api/items/items'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -92,36 +93,34 @@ class _HomepageState extends State<Homepage> {
       ),
       body: SafeArea(
         child: _currentIndex == 0
-            ? Container(
+            ? SingleChildScrollView(
                 padding: EdgeInsets.all(20),
-                child: ListView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Search Bar
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.search, color: Colors.grey),
-                              hintText: "Search",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
-                              ),
-                              fillColor: Colors.grey[200],
-                              filled: true,
-                            ),
-                          ),
+                    // Search Bar (FIXED)
+                    GestureDetector(
+                      onTap: () {
+                        showSearch(context: context, delegate: ItemSearchDelegate());
+                      },
+                      child: Container(
+                        height: 50,
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Icon(
-                            Icons.menu,
-                            size: 40,
-                            color: Color(0xFFFFC727),
-                          ),
-                        )
-                      ],
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: Colors.grey),
+                            SizedBox(width: 10),
+                            Text(
+                              "Search",
+                              style: TextStyle(color: Colors.grey[600]),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                     SizedBox(height: 30),
 
