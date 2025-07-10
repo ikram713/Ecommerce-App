@@ -70,9 +70,49 @@ class ItemSearchDelegate extends SearchDelegate {
   }
 
   @override
-  Widget buildSuggestions(BuildContext context) {
+Widget buildSuggestions(BuildContext context) {
+  if (query.isEmpty) {
     return Center(child: Text("Type to search items..."));
   }
+
+  return FutureBuilder<List<dynamic>>(
+    future: searchItems(query),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      if (snapshot.hasError) {
+        return Center(child: Text("Error: ${snapshot.error}"));
+      }
+
+      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Center(child: Text("No suggestions found."));
+      }
+
+      final suggestions = snapshot.data!;
+
+      return ListView.builder(
+        itemCount: suggestions.length,
+        itemBuilder: (context, index) {
+          final item = suggestions[index];
+
+          return ListTile(
+            leading: item["image"] != null
+                ? Image.network(item["image"], width: 50, height: 50, fit: BoxFit.cover)
+                : Icon(Icons.image),
+            title: Text(item["name"] ?? "No name"),
+            onTap: () {
+              query = item["name"]; // fills the search field with the selected suggestion
+              showResults(context); // triggers buildResults
+            },
+          );
+        },
+      );
+    },
+  );
+}
+
 
   @override
   List<Widget>? buildActions(BuildContext context) {
