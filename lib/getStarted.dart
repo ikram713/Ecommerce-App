@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce_app/homePage.dart';
+import 'package:ecommerce_app/login.dart';
 class GetStartedPage extends StatelessWidget {
   const GetStartedPage({super.key});
 
@@ -39,7 +40,7 @@ class GetStartedPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const Homepage()),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               },
               style: ElevatedButton.styleFrom(
