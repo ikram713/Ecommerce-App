@@ -56,7 +56,7 @@ void _handleLogin() async {
       ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
       content: Text('Login successful!'),
-      backgroundColor: Colors.green, // ✅ green background
+      backgroundColor: Colors.green, 
     ),
   );
 
@@ -101,7 +101,7 @@ void _handleLogin() async {
                 // Illustration image
                 Center(
                   child: Image.asset(
-                    'images/login.png', // replace with your asset
+                    'images/login.png', 
                     height: 250,
                   ),
                 ),
