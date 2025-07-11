@@ -3,22 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:ecommerce_app/homePage.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ecommerce_app/signup.dart';
 
-
-
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
-    );
-  }
-}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -206,10 +192,13 @@ void _handleLogin() async {
                     const Text("Don't have an account ?"),
                     TextButton(
                       onPressed: () {
-                        // TODO: Navigate to signup screen
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SignupPage()),
+                            );
                       },
                       child: const Text(
-                        'SignUp',
+                        'Signup',
                         style: TextStyle(color: Color(0xFFFFC727)),
                       ),
                     ),
