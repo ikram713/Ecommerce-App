@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'item_search_delegate.dart';
 import 'package:ecommerce_app/cart.dart';
 import 'package:ecommerce_app/profile.dart';
-import 'package:ecommerce_app/theme_provider.dart'; 
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -27,6 +26,7 @@ class _HomepageState extends State<Homepage> {
   ];
 
   List items = [];
+  List<bool> isLikedList = [];
   bool isLoading = true;
 
   @override
@@ -43,56 +43,41 @@ class _HomepageState extends State<Homepage> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {
-          items = jsonDecode(response.body);
-          isLoading = false;
-        });
+        final decodedItems = jsonDecode(response.body);
+        if (mounted) {
+          setState(() {
+            items = decodedItems;
+            isLikedList = List.generate(items.length, (index) => false);
+            isLoading = false;
+          });
+        }
       } else {
         print('Failed to load items');
-        setState(() => isLoading = false);
+        if (mounted) setState(() => isLoading = false);
       }
     } catch (e) {
       print('Error: $e');
-      setState(() => isLoading = false);
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: ClipRRect(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
-        child: Material(
-          color: Colors.white,
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-            ),
-            child: BottomNavigationBar(
-              currentIndex: _currentIndex,
-              iconSize: 30,
-              selectedItemColor: Color(0xFFFFC727),
-              onTap: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              items: const [
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.home_outlined), label: "*"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.shopping_bag_outlined), label: "*"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.person_outline), label: "*"),
-              ],
-            ),
-          ),
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        iconSize: 30,
+        selectedItemColor: Color(0xFFFFC727),
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "*"),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), label: "*"),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "*"),
+        ],
       ),
       body: SafeArea(
         child: _currentIndex == 0
@@ -101,7 +86,7 @@ class _HomepageState extends State<Homepage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Search Bar (FIXED)
+                    // Search bar
                     GestureDetector(
                       onTap: () {
                         showSearch(context: context, delegate: ItemSearchDelegate());
@@ -117,10 +102,7 @@ class _HomepageState extends State<Homepage> {
                           children: [
                             Icon(Icons.search, color: Colors.grey),
                             SizedBox(width: 10),
-                            Text(
-                              "Search",
-                              style: TextStyle(color: Colors.grey[600]),
-                            )
+                            Text("Search", style: TextStyle(color: Colors.grey[600])),
                           ],
                         ),
                       ),
@@ -128,9 +110,7 @@ class _HomepageState extends State<Homepage> {
                     SizedBox(height: 30),
 
                     // Categories
-                    Text("Categories",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text("Categories", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     SizedBox(height: 20),
                     Container(
                       height: 100,
@@ -152,9 +132,7 @@ class _HomepageState extends State<Homepage> {
                                   Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(100),
-                                      color: isSelected
-                                          ? const Color(0xFFFFC727)
-                                          : Colors.grey[200],
+                                      color: isSelected ? const Color(0xFFFFC727) : Colors.grey[200],
                                     ),
                                     height: 80,
                                     width: 80,
@@ -162,9 +140,7 @@ class _HomepageState extends State<Homepage> {
                                     child: Icon(
                                       categories[index]["icon"],
                                       size: 45,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.black,
+                                      color: isSelected ? Colors.white : Colors.black,
                                     ),
                                   ),
                                   Text(
@@ -183,9 +159,7 @@ class _HomepageState extends State<Homepage> {
                     ),
 
                     SizedBox(height: 30),
-                    Text("Best Selling",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text("Best Selling", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     SizedBox(height: 20),
 
                     isLoading
@@ -194,24 +168,26 @@ class _HomepageState extends State<Homepage> {
                             itemCount: items.length,
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               childAspectRatio: 0.8,
                               mainAxisSpacing: 10,
                               crossAxisSpacing: 10,
-                              mainAxisExtent: 250,
+                              mainAxisExtent: 270,
                             ),
                             itemBuilder: (context, index) {
                               final item = items[index];
+                              final isLiked = index < isLikedList.length && isLikedList[index];
+
                               return InkWell(
                                 onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) =>
-                                          ItemsDetails(data: item)));
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (context) => ItemsDetails(data: item)),
+                                  );
                                 },
                                 child: Card(
                                   child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
                                         child: Container(
@@ -221,32 +197,53 @@ class _HomepageState extends State<Homepage> {
                                           child: Image.network(
                                             item["image"] ?? '',
                                             fit: BoxFit.contain,
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    Icon(Icons.broken_image),
+                                            errorBuilder: (context, error, stackTrace) =>
+                                                Icon(Icons.broken_image),
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        item["name"] ?? "No name",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        item["description"] ??
-                                            "No description",
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                      Text(
-                                        "\$${item["price"].toString()}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                          color: Color(0xFFFFC727),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item["name"] ?? "No name",
+                                              style: TextStyle(fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                              item["description"] ?? "No description",
+                                              style: TextStyle(color: Colors.grey),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "\$${item["price"].toString()}",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15,
+                                                    color: Color(0xFFFFC727),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                    isLiked ? Icons.favorite : Icons.favorite_border,
+                                                    color: isLiked ? Color(0xFFFFC727) : Colors.grey,
+                                                  ),
+                                                  onPressed: () {
+                                                    if (index < isLikedList.length) {
+                                                      setState(() {
+                                                        isLikedList[index] = !isLikedList[index];
+                                                      });
+                                                    }
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      SizedBox(height: 8),
                                     ],
                                   ),
                                 ),
@@ -256,9 +253,9 @@ class _HomepageState extends State<Homepage> {
                   ],
                 ),
               )
-              : _currentIndex == 1
-          ? CartPage() // ✅ Load actual cart page
-          : ProfilePage(), // ✅ Load profile page
+            : _currentIndex == 1
+                ? CartPage()
+                : ProfilePage(),
       ),
     );
   }
