@@ -33,24 +33,25 @@ void _handleLogin() async {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final token = data['token'];
+      final userId = data['user']['_id']; // 👈 Extract userId from response
 
-      // Save the token to SharedPreferences
+      // Save the token and userId to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('authToken', token);
+      await prefs.setString('userId', userId); // 👈 Save userId
+      print('Login successful, token: $token, userId: $userId');
 
-      // Example: show success snackbar
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-      content: Text('Login successful!'),
-      backgroundColor: Colors.green, 
-    ),
-  );
+        const SnackBar(
+          content: Text('Login successful!'),
+          backgroundColor: Colors.green,
+        ),
+      );
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const Homepage()),
       );
-
     } else {
       final data = jsonDecode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,6 +64,7 @@ void _handleLogin() async {
     );
   }
 }
+
 
 
   @override

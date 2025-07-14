@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class ItemsDetails extends StatefulWidget {
   final dynamic data;
@@ -157,13 +161,44 @@ class _ItemsDetailsState extends State<ItemsDetails> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  final userId = prefs.getString('userId');
+
+                  if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${widget.data['name']} added to cart!'),
-                    ),
+                  const SnackBar(content: Text("Please login first")),
                   );
-                },
+                return;
+              }
+
+              final itemId = widget.data['_id']; 
+
+              final url = Uri.parse('http://10.44.197.181:5000/api/cart/add');
+
+              try {
+              final response = await http.post(
+              url,
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({'userId': userId, 'itemId': itemId}),
+              );
+
+              if (response.statusCode == 200) {
+              ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${widget.data['name']} added to cart!')),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Failed to add to cart")),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Something went wrong")),
+    );
+  }
+},
+
                 icon: const Icon(Icons.shopping_cart),
                 label: const Text(
                   "Add to Cart",
