@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'item_search_delegate.dart';
+import 'package:ecommerce_app/cart.dart';
+import 'package:ecommerce_app/profile.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -253,12 +255,9 @@ class _HomepageState extends State<Homepage> {
                   ],
                 ),
               )
-            : Center(
-                child: Text(
-                  _currentIndex == 1 ? "Cart Page" : "Profile Page",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              ),
+              : _currentIndex == 1
+          ? CartPage() // ✅ Load actual cart page
+          : ProfilePage(), // ✅ Load profile page
       ),
     );
   }
