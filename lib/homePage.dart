@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'item_search_delegate.dart';
 import 'package:ecommerce_app/cart.dart';
 import 'package:ecommerce_app/profile.dart';
+import 'package:ecommerce_app/theme_provider.dart'; 
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});

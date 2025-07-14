@@ -16,65 +16,57 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
- void _handleSignup() async {
-  final username = _usernameController.text.trim();
-  final email = _emailController.text.trim();
-  final password = _passwordController.text.trim();
+  void _handleSignup() async {
+    final username = _usernameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
     if (username.isEmpty || email.isEmpty || password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('All fields are required'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return; // Stop the function if validation fails
-  }
-
-  final url = Uri.parse('http://10.44.197.181:5000/api/auth/signup'); // Adjust route
-
-  try {
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'email': email,
-        'password': password,
-      }),
-    );
-
-    if (response.statusCode == 201) {
-      // Success
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Signup successful! Please login.'),
-          backgroundColor: Colors.green,
+          content: Text('All fields are required'),
+          backgroundColor: Colors.red,
         ),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Homepage()),
+      return;
+    }
+
+    final url = Uri.parse('http://10.44.197.181:5000/api/auth/signup');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'email': email,
+          'password': password,
+        }),
       );
-    } else if (response.statusCode == 400) {
-      // User already exists
-      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Signup successful! Please login.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Homepage()),
+        );
+      } else {
+        final data = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Signup failed: ${data['message']}')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Signup failed: ${data['message']}')),
-      );
-    } else {
-      final data = jsonDecode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Signup failed: ${data['message']}')),
+        SnackBar(content: Text('Error: $e')),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
   }
-}
-
 
   @override
   void dispose() {
@@ -86,9 +78,11 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(top:100.0),
+        padding: const EdgeInsets.only(top: 100.0),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -97,23 +91,21 @@ class _SignupPageState extends State<SignupPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-        
-        
+
                   const SizedBox(height: 30),
-        
+
                   // Signup text
                   Center(
                     child: RichText(
                       textAlign: TextAlign.center,
-                      text: const TextSpan(
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      text: TextSpan(
+                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                         children: [
-                          TextSpan(text: 'Register to '),
                           TextSpan(
+                            text: 'Register to ',
+                            style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                          ),
+                          const TextSpan(
                             text: 'ShopEase',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -125,24 +117,26 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Center(
+
+                  Center(
                     child: Text(
                       'Create Your Account Here',
-                      style: TextStyle(color: Colors.grey),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
                     ),
                   ),
-        
+
                   const SizedBox(height: 30),
-        
+
                   // Username field
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF6F6F6),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: TextField(
                       controller: _usernameController,
+                      style: theme.textTheme.bodyLarge,
                       decoration: const InputDecoration(
                         icon: Icon(Icons.person),
                         border: InputBorder.none,
@@ -151,16 +145,17 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-        
+
                   // Email field
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF6F6F6),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: TextField(
                       controller: _emailController,
+                      style: theme.textTheme.bodyLarge,
                       decoration: const InputDecoration(
                         icon: Icon(Icons.email),
                         border: InputBorder.none,
@@ -169,17 +164,18 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-        
+
                   // Password field
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF6F6F6),
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: TextField(
                       controller: _passwordController,
                       obscureText: true,
+                      style: theme.textTheme.bodyLarge,
                       decoration: const InputDecoration(
                         icon: Icon(Icons.lock),
                         border: InputBorder.none,
@@ -187,9 +183,9 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ),
                   ),
-        
+
                   const SizedBox(height: 30),
-        
+
                   // Signup button
                   SizedBox(
                     width: double.infinity,
@@ -209,18 +205,20 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-        
+
                   // Login link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Already have an account ?'),
+                      Text(
+                        'Already have an account ?',
+                        style: theme.textTheme.bodyLarge,
+                      ),
                       TextButton(
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => const LoginScreen()),
+                            MaterialPageRoute(builder: (context) => const LoginScreen()),
                           );
                         },
                         child: const Text(
