@@ -32,7 +32,7 @@ class _CartPageState extends State<CartPage> {
       return;
     }
 
-    final url = Uri.parse('http://10.44.197.181:5000/api/cart/get'); 
+    final url = Uri.parse('http://10.44.197.181:5000/api/cart/get');
 
     try {
       final response = await http.post(
@@ -63,19 +63,19 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text("My Cart", 
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            )),
+        title: Text(
+          "My Cart",
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: theme.iconTheme,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -87,30 +87,23 @@ class _CartPageState extends State<CartPage> {
           ? const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFFC727)),
-            )
+              ),
             )
           : cartItems.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.shopping_cart_outlined,
-                        size: 80,
-                        color: Colors.grey[300],
-                      ),
+                      Icon(Icons.shopping_cart_outlined, size: 80, color: theme.disabledColor),
                       const SizedBox(height: 20),
-                      const Text(
+                      Text(
                         "Your cart is empty",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey,
-                        ),
+                        style: theme.textTheme.bodyLarge?.copyWith(color: theme.disabledColor),
                       ),
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: () {
-                          // Navigate to home or shop page
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const Homepage()));
                         },
                         child: const Text(
                           "Continue Shopping",
@@ -135,12 +128,11 @@ class _CartPageState extends State<CartPage> {
                           final product = item['itemId'];
                           return Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: theme.cardColor,
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  spreadRadius: 1,
+                                  color: Colors.grey.withOpacity(0.05),
                                   blurRadius: 5,
                                   offset: const Offset(0, 2),
                                 ),
@@ -159,13 +151,12 @@ class _CartPageState extends State<CartPage> {
                                     width: 100,
                                     height: 120,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        Container(
-                                          width: 100,
-                                          height: 120,
-                                          color: Colors.grey[200],
-                                          child: const Icon(Icons.broken_image, color: Colors.grey),
-                                        ),
+                                    errorBuilder: (context, error, stackTrace) => Container(
+                                      width: 100,
+                                      height: 120,
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.broken_image, color: Colors.grey),
+                                    ),
                                   ),
                                 ),
                                 Expanded(
@@ -180,10 +171,7 @@ class _CartPageState extends State<CartPage> {
                                             Expanded(
                                               child: Text(
                                                 product['name'] ?? "Unknown",
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
+                                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -191,7 +179,7 @@ class _CartPageState extends State<CartPage> {
                                             IconButton(
                                               icon: const Icon(Icons.close, size: 20),
                                               onPressed: () {
-                                                // Remove item from cart
+                                                // TODO: Remove item
                                               },
                                             ),
                                           ],
@@ -199,9 +187,8 @@ class _CartPageState extends State<CartPage> {
                                         const SizedBox(height: 8),
                                         Text(
                                           product['description'] ?? "",
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 14,
+                                          style: theme.textTheme.bodyMedium?.copyWith(
+                                            color: theme.hintColor,
                                           ),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
@@ -228,17 +215,17 @@ class _CartPageState extends State<CartPage> {
                                                   IconButton(
                                                     icon: const Icon(Icons.remove, size: 18),
                                                     onPressed: () {
-                                                      // Decrease quantity
+                                                      // TODO: Decrease qty
                                                     },
                                                   ),
                                                   Text(
                                                     item['quantity'].toString(),
-                                                    style: const TextStyle(fontSize: 16),
+                                                    style: theme.textTheme.bodyMedium,
                                                   ),
                                                   IconButton(
                                                     icon: const Icon(Icons.add, size: 18),
                                                     onPressed: () {
-                                                      // Increase quantity
+                                                      // TODO: Increase qty
                                                     },
                                                   ),
                                                 ],
@@ -260,10 +247,10 @@ class _CartPageState extends State<CartPage> {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: theme.cardColor,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withOpacity(0.05),
                               spreadRadius: 1,
                               blurRadius: 10,
                               offset: const Offset(0, -5),
@@ -275,16 +262,12 @@ class _CartPageState extends State<CartPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   "Total:",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   "\$${calculateTotal()}",
-
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,

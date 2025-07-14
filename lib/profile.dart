@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'EditProfilePage.dart';
+import 'package:ecommerce_app/theme_provider.dart';
+import 'login.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -139,11 +141,67 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: theme.colorScheme.onBackground),
+        iconTheme: IconThemeData(color: Color(0xFFFFC727)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {},
+            icon: const Icon(Icons.settings_outlined ,
+              color: Color(0xFFFFC727),
+            ),
+            onPressed: () {
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: const Text('Change Language'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: implement language switching logic
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Language change clicked")),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.brightness_6),
+              title: const Text('Change Theme'),
+              onTap: () {
+                Navigator.pop(context);
+                themeNotifier.value = 
+                      themeNotifier.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Theme change clicked")),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () async {
+                Navigator.pop(context);
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.clear(); // remove userId and others
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Logged out")),
+                );
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginScreen()));
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+},
+
           ),
         ],
       ),
@@ -198,15 +256,15 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.primary,
+                              color: Color(0xFFFFC727),
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: theme.scaffoldBackgroundColor,
+                                color: Color(0xFFFFC727),
                                 width: 3,
                               ),
                             ),
                             child: IconButton(
-                              icon: const Icon(Icons.camera_alt, size: 20),
+                              icon: const Icon(Icons.camera_alt, size: 20 ,),
                               color: Colors.white,
                               onPressed: pickAndUploadImage,
                             ),
@@ -252,7 +310,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             const Divider(height: 1, indent: 16),
                             _buildProfileItem(
                               context,
-                              icon: Icons.email_outlined,
+                              icon: Icons.email_outlined,                             
                               title: "Email",
                               value: user!['email'],
                             ),
@@ -272,6 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
+                          
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -281,7 +340,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ).then((_) => fetchUserProfile());
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.colorScheme.primary,
+                            backgroundColor: Color(0xFFFFC727),
                             foregroundColor: theme.colorScheme.onPrimary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -317,7 +376,7 @@ class _ProfilePageState extends State<ProfilePage> {
           color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+        child: Icon(icon, color: Color(0xFFFFC727)),
       ),
       title: Text(
         title,
